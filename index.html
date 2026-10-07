@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DApp - Módulo de Envío</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Ethers.js v6 para conectar con la Wallet -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.0/ethers.umd.min.js"></script>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4 text-gray-100 font-sans">
+
+  <!-- INTERFAZ PRINCIPAL DE LA DAPP -->
+  <div class="max-w-md w-full bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-700 space-y-6">
+    <div class="flex justify-between items-center border-b border-gray-700 pb-4">
+      <h1 class="text-xl font-bold text-white">Transferencia DApp</h1>
+      <button 
+        id="connectBtn" 
+        onclick="connectWallet()" 
+        class="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-semibold rounded-lg hover:bg-emerald-500/20 transition">
+        Conectar Wallet
+      </button>
+    </div>
+
+    <!-- FORMULARIO DE ENVÍO -->
+    <div class="space-y-4">
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label class="text-xs font-medium text-gray-400">Dirección Receptora</label>
+        </div>
+        <input 
+          type="text" 
+          id="recipientInput" 
+          placeholder="0x..." 
+          class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition font-mono">
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label class="text-xs font-medium text-gray-400">Monto a Enviar</label>
+          <span class="text-xs text-gray-400">Saldo: <span id="userBalance" class="text-white font-semibold">0.00</span> ETH</span>
+        </div>
+        <div class="relative">
+          <input 
+            type="number" 
+            id="amountInput" 
+            step="0.0001" 
+            placeholder="0.0" 
+            class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition font-mono pr-16">
+          <button 
+            onclick="setMaxBalance()" 
+            class="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 bg-gray-700 hover:bg-gray-600 text-xs text-emerald-400 rounded transition font-semibold">
+            MAX
+          </button>
+        </div>
+      </div>
+
+      <button 
+        id="sendBtn" 
+        onclick="executeTransaction()" 
+        disabled 
+        class="w-full py-3 bg-emerald-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed hover:bg-emerald-600 text-gray-950 font-bold rounded-xl transition shadow-lg mt-2">
+        Procesar Transacción
+      </button>
+      
+      <p id="statusMsg" class="text-xs text-center text-gray-400 min-h-[1rem]"></p>
+    </div>
+  </div>
+
+
+  <!-- MODAL / VENTANA DETALLADA (OPERACIÓN EXITOSA) -->
+  <div 
+    id="transactionModal" 
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
+    
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden text-gray-900 font-sans">
+      
+      <!-- Header y Monto Enviado -->
+      <div class="bg-emerald-50/80 p-6 text-center border-b border-emerald-100 relative">
+        <button 
+          onclick="closeModal()" 
+          class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+
+        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <p class="text-xs font-bold tracking-wider text-emerald-700 uppercase">Operación Exitosa</p>
+        
+        <!-- 1. MONTO REAL ENVIADO -->
+        <div class="mt-2">
+          <span id="modalAmount" class="text-3xl font-extrabold text-gray-900">0.00</span>
+          <span class="text-sm font-semibold text-gray-500 ml-1">ETH</span>
+        </div>
+      </div>
+
+      <!-- Detalle de la Operación -->
+      <div class="p-6 space-y-4 text-sm">
+        
+        <!-- 2. DIRECCIÓN DE ENVÍO -->
+        <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Dirección de envío</span>
+          <div class="flex items-center gap-2">
+            <span id="modalSenderText" class="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded text-xs font-semibold">0x00...000</span>
+            <button 
+              id="btnCopySender" 
+              onclick="copyModalData('sender')" 
+              class="text-gray-400 hover:text-emerald-600 transition p-1" 
+              title="Copiar dirección">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. DIRECCIÓN RECEPTORA -->
+        <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Dirección receptora</span>
+          <div class="flex items-center gap-2">
+            <span id="modalReceiverText" class="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded text-xs font-semibold">0x00...000</span>
+            <button 
+              id="btnCopyReceiver" 
+              onclick="copyModalData('receiver')" 
+              class="text-gray-400 hover:text-emerald-600 transition p-1" 
+              title="Copiar dirección">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. TXID REAL -->
+        <div class="flex justify-between items-center">
+          <span class="text-gray-500 font-medium">TxID</span>
+          <div class="flex items-center gap-2">
+            <a 
+              id="modalTxidLink" 
+              href="#" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="text-indigo-600 hover:text-indigo-800 font-mono text-xs flex items-center gap-1 font-semibold underline underline-offset-2">
+              <span id="modalTxidText">0x00...000</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </a>
+            <button 
+              id="btnCopyTxid" 
+              onclick="copyModalData('txid')" 
+              class="text-gray-400 hover:text-emerald-600 transition p-1" 
+              title="Copiar TxID">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Botón de Cierre -->
+      <div class="p-4 bg-gray-50 border-t border-gray-100">
+        <button 
+          onclick="closeModal()" 
+          class="w-full py-2.5 bg-gray-900 hover:bg-black text-white font-medium rounded-xl text-sm transition shadow-sm">
+          Entendido
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT Y LÓGICA DE DAPP -->
+  <script>
+    let provider;
+    let signer;
+    let userAddress = "";
+    let rawBalance = "0";
+
+    // Objeto temporal para almacenar los datos completos sin acortar para la opción de copiar
+    const fullTxData = {
+      sender: "",
+      receiver: "",
+      txid: ""
+    };
+
+    // Helper para truncar direcciones y hashes
+    function truncate(str) {
+      if (!str) return "";
+      return str.substring(0, 6) + "..." + str.substring(str.length - 4);
+    }
+
+    // 1. Conectar Wallet
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert("Por favor instala MetaMask para probar este módulo.");
+        return;
+      }
+
+      try {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer = await provider.getSigner();
+        userAddress = await signer.getAddress();
+
+        // Obtener saldo
+        const balance = await provider.getBalance(userAddress);
+        rawBalance = ethers.formatEther(balance);
+
+        // Actualizar UI DApp
+        document.getElementById('connectBtn').innerText = truncate(userAddress);
+        document.getElementById('userBalance').innerText = parseFloat(rawBalance).toFixed(4);
+        document.getElementById('sendBtn').disabled = false;
+        document.getElementById('statusMsg').innerText = "Wallet conectada correctamente.";
+      } catch (err) {
+        console.error(err);
+        document.getElementById('statusMsg').innerText = "Error al conectar la wallet.";
+      }
+    }
+
+    // 2. Colocar saldo máximo
+    function setMaxBalance() {
+      if (!rawBalance || rawBalance === "0") return;
+      // Descontamos un margen pequeño para el gas estimado
+      const safeAmount = Math.max(0, parseFloat(rawBalance) - 0.001);
+      document.getElementById('amountInput').value = safeAmount > 0 ? safeAmount.toFixed(4) : "0";
+    }
+
+    // 3. Ejecutar Transacción y desplegar Modal con datos reales
+    async function executeTransaction() {
+      const recipient = document.getElementById('recipientInput').value.trim();
+      const amount = document.getElementById('amountInput').value.trim();
+      const status = document.getElementById('statusMsg');
+
+      if (!ethers.isAddress(recipient)) {
+        alert("Ingresa una dirección receptora válida.");
+        return;
+      }
+
+      if (!amount || parseFloat(amount) <= 0) {
+        alert("Ingresa un monto válido.");
+        return;
+      }
+
+      try {
+        status.innerText = "Confirmando en wallet...";
+        
+        // Enviar la transacción a la blockchain
+        const tx = await signer.sendTransaction({
+          to: recipient,
+          value: ethers.parseEther(amount)
+        });
+
+        status.innerText = "Transacción enviada. Esperando confirmación...";
+
+        // Guardar datos completos
+        fullTxData.sender = userAddress;
+        fullTxData.receiver = recipient;
+        fullTxData.txid = tx.hash;
+
+        // Inyectar datos reales en la Ventana Modal
+        document.getElementById('modalAmount').innerText = amount;
+        document.getElementById('modalSenderText').innerText = truncate(userAddress);
+        document.getElementById('modalReceiverText').innerText = truncate(recipient);
+        document.getElementById('modalTxidText').innerText = truncate(tx.hash);
+        
+        // Enlace al explorador (Sepolia / Mainnet según la red activa)
+        const network = await provider.getNetwork();
+        const explorerBase = network.chainId === 1n ? 'https://etherscan.io' : 'https://sepolia.etherscan.io';
+        document.getElementById('modalTxidLink').href = `${explorerBase}/tx/${tx.hash}`;
+
+        // Mostrar Modal de Operación Exitosa
+        status.innerText = "¡Operación completada con éxito!";
+        openModal();
+
+        // Actualizar saldo de la DApp
+        connectWallet();
+
+      } catch (err) {
+        console.error(err);
+        status.innerText = "Error o cancelación en la transacción.";
+      }
+    }
+
+    // Funciones del Modal
+    function openModal() {
+      document.getElementById('transactionModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('transactionModal').classList.add('hidden');
+    }
+
+    // Copiar texto dinámico completo al portapapeles
+    function copyModalData(key) {
+      const valueToCopy = fullTxData[key];
+      const btnId = key === 'sender' ? 'btnCopySender' : key === 'receiver' ? 'btnCopyReceiver' : 'btnCopyTxid';
+      
+      if (!valueToCopy) return;
+
+      navigator.clipboard.writeText(valueToCopy).then(() => {
+        const btn = document.getElementById(btnId);
+        const originalIcon = btn.innerHTML;
+        
+        btn.innerHTML = `
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        `;
+        
+        setTimeout(() => {
+          btn.innerHTML = originalIcon;
+        }, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
